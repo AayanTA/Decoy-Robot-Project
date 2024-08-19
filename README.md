@@ -1,2 +1,2 @@
 # Decoy-Robot-Project
-For Applied Computing
+This project is for VCE Applied Computing
