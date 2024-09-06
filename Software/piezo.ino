@@ -1,6 +1,9 @@
 // Guide to tones
 // https://docs.arduino.cc/built-in-examples/digital/toneMelody/
 
+// Try to recreate this sound of a rifle
+// https://www.youtube.com/watch?v=KJIqrmcwHqU
+
 const int buzzerPin = 9; //buzzer to arduino pin 9
 
 
