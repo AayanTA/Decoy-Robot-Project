@@ -1,3 +1,6 @@
+// Guide to tones
+// https://docs.arduino.cc/built-in-examples/digital/toneMelody/
+
 const int buzzerPin = 9; //buzzer to arduino pin 9
 
 
