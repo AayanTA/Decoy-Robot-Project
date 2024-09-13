@@ -1,11 +1,21 @@
 // Main code
 
 #include "pitches.h"
+#include <Servo.h>
+
+// Servo objects
+Servo leftServo;
+Servo rightServo;
 
 // constants won't change. They're used here to set pin numbers:
 const int buttonPin = 2;  // the number of the pushbutton pin
 const int ledPin = 9;    // the number of the LED pin
 const int dialPin = A0;  // Analog input pin that the potentiometer is attached to
+// Ultrasonic sensor connections
+const int trigPin = 12;  // Trigger pin for the ultrasonic sensor
+const int echoPin = 13;  // Echo pin for the ultrasonic sensor
+// Distance threshold for stopping (in centimeters)
+const int distanceThreshold = 15;  // Stop if obstacle is closer than 15 cm
 
 // variables will change
 int dialValue = 0;        // value read from the pot
@@ -50,12 +60,66 @@ int noteDurations[] = {
 void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
+  
+  // Attach servos to their pins
+  leftServo.attach(13);   // Attach left servo to Pin 13
+  rightServo.attach(12); // Attach right servo to Pin 12
+
+  // Set ultrasonic sensor pins
+  pinMode(trigPin, OUTPUT);  // Set trigger pin as output
+  pinMode(echoPin, INPUT);   // Set echo pin as input
+  
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);
+  
   // initialize the pushbutton pin as an input:
   pinMode(buttonPin, INPUT);
+  
   // set initial LED state
   digitalWrite(ledPin, ledState);
+}
+
+long measureDistance() {
+  // Send a 10us pulse to trigger the sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Measure the pulse duration on the echo pin
+  long duration = pulseIn(echoPin, HIGH);
+
+  // Convert duration to distance (in cm)
+  long distance = duration * 0.034 / 2;
+
+  return distance;
+}
+
+// Function to move the robot forward
+void moveForward() {
+  leftServo.writeMicroseconds(1300);  // Full speed forward for left servo (counterclockwise)
+  rightServo.writeMicroseconds(1700);   // Full speed forward for right servo (clockwise)
+}
+// Function to move the robot backward
+void moveBackward() {
+  leftServo.writeMicroseconds(1700);    // Full speed backward for left servo
+  rightServo.writeMicroseconds(1300); // Full speed backward for right servo
+}
+// Function to turn the robot left
+void turnLeft() {
+  leftServo.writeMicroseconds(1500);    // Stop left servo
+  rightServo.writeMicroseconds(1700);   // Right servo moves forward
+}
+// Function to turn the robot right
+void turnRight() {
+  leftServo.writeMicroseconds(1300);  // Left servo moves forward
+  rightServo.writeMicroseconds(1500); // Stop right servo
+}
+// Function to stop the robot
+void stopRobot() {
+  servoLeft.writeMicroseconds(1500); // 1.5 ms stay-still signal
+  rightServo.writeMicroseconds(1500);  // Stop right servo
 }
 
 void playSound() {
@@ -118,6 +182,10 @@ void readButton() {
 
   // save the reading. Next time through the loop, it'll be the lastButtonState:
   lastButtonState = reading;
+}
+
+void movementLogic() {
+  moveForward();
 }
 
 void loop() {
