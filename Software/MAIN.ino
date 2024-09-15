@@ -33,9 +33,9 @@ unsigned long debounceDelay = 50;    // the debounce time; increase if the outpu
 
 // Generally, you should use "unsigned long" for variables that hold time
 // The value will quickly become too large for an int to store
-unsigned long previousMillis = 0;  // will store last time LED was updated
+unsigned long previousMillis = 0;  // used for playing sounds
 unsigned long buttonMillis = 0;
-unsigned long soundMillis = 0;
+unsigned long blinkMillis = 0;
 
 
 // constants won't change:
@@ -185,24 +185,37 @@ void readButton() {
 }
 
 void movementLogic() {
-  moveForward();
+  // Check if the distance is below the threshold
+  if (distance < distanceThreshold) {
+    // Stop the robot if an obstacle is too close
+    stopRobot();
+    //turnRight();
+  } else {
+    // Move forward if no obstacle is detected
+    moveForward();
+  }
 }
 
 void loop() {
   //Serial.println("loopy");
   unsigned long currentMillis = millis();
+  // Measure the distance to any obstacle
+  long distance = measureDistance();
+  // Read value from dial
   dialValue = analogRead(dialPin);
   readButton();
   if (active == true) {
     //Serial.println("active!!");
     digitalWrite(ledPin, HIGH);
+    movementLogic();
     if (currentMillis - buttonMillis >= timerDelay) {
       //Serial.println("hihi");
+      stopRobot();
       playSound();
-      if (currentMillis - previousMillis >= interval) {
+      if (currentMillis - blinkMillis >= interval) {
         // save the last time you blinked the LED
         //Serial.println("millissssssssssssssssssssssss");
-        previousMillis = currentMillis;
+        blinkMillis = currentMillis;
     
         // if the LED is off turn it on and vice-versa:
         if (ledState == HIGH) {
